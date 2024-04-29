@@ -9,6 +9,8 @@ require('dotenv').config();
 const CategoryRoute = require("./Routes/CategoryRoute");
 
 const app = express();
+app.use(express.json());
+app.use(express.Router());
 const server = http.createServer(app);
 
 mongoose
