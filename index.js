@@ -7,6 +7,7 @@ http = require("http");
 require('dotenv').config();
 
 const CategoryRoute = require("./Routes/CategoryRoute");
+const UserRoute = require("./Routes/UserRoute");
 
 const app = express();
 app.use(express.json());
@@ -18,8 +19,8 @@ mongoose
     .then(() => console.log("This shit finally work"))
     .catch(err => console.log(err));
 
-
 app.use("/api/category", CategoryRoute);
+app.use("/api/user", UserRoute);
 
 app.get("/", (req, res) => {
     res.status(200).json({message: "Home Page"});
