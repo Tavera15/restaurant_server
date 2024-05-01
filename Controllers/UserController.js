@@ -1,23 +1,63 @@
 const User = require("../Models/User");
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
 const saltRounds = 10;
 const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
 const PasswordNotMatchError = require("../Exceptions/PasswordNotMatchError");
+const UnauthorizationError = require("../Exceptions/UnauthorizationError");
 
-const CreateUser = async (req, res) =>
+
+const UserRegistration = async (req, res) =>
 {
     try
     {
         const {auth0Id = "sds", name, email, password} = req.body;
         const hash = await bcrypt.hash(password, saltRounds);
         const newUser = new User({auth0Id, name, email, password: hash});
-        
+
         await newUser.save();
-        res.status(201).json(newUser);
+        const token = jwt.sign({userId: newUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: "1hr"});
+        
+        res.status(201).json(token);
     }
     catch(err)
     {
         res.status(500).json(err.message);
+    }
+}
+
+const UserLogin = async (req, res) => 
+{
+    try
+    {
+        const {email, passwordInput} = req.body;
+
+        const target = await User.findOne({email});        
+        if(!target) {throw new UnauthorizationError()}
+
+        const isPasswordMatch = await bcrypt.compare(passwordInput, target.password);
+        if(!isPasswordMatch) {throw new UnauthorizationError()}
+
+        const token = jwt.sign({userId: target._id}, process.env.JWT_SECRET_KEY, {expiresIn: "1hr"});
+        res.status(200).json(token);
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message);
+    }
+}
+
+const GetUser = async (req, res) =>
+{
+    try
+    {
+        const target = await User.findById(req.userId).select("-password");
+        res.status(200).json(target);
+    }
+    catch(err)
+    {
+        res.status(500).json(err);
     }
 }
 
@@ -28,7 +68,7 @@ const UpdateUser = async (req, res) =>
         const targetId = req.body.userId;
         const target = await User.findById(targetId);
 
-        if(target === null) {throw new EntityNotFoundError("User not found")}
+        if(!target) {throw new EntityNotFoundError("User not found")}
 
         const newData = req.body;
         
@@ -81,7 +121,9 @@ const UpdatePassword = async (req, res) =>
 }
 
 module.exports = {
-    CreateUser,
+    GetUser,
+    UserRegistration,
+    UserLogin,
     UpdateUser,
     UpdatePassword,
 }
