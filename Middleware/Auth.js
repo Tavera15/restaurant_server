@@ -16,13 +16,14 @@ const verifyToken = (req, res, next) =>
     }
     catch(err)
     {
-        if(err instanceof UnauthorizationError)
+        switch(err)
         {
-            res.status(401).json(err);
-        }
-        else
-        {
-            res.status(500).json({message: "Something went wrong"});
+            case err instanceof UnauthorizationError:
+                res.status(401).json(err);
+                break;
+            default:
+                res.status(500).json("Something went wrong");
+                break;
         }
     }
 }

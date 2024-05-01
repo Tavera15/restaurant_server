@@ -3,21 +3,19 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const saltRounds = 10;
-const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
-const PasswordNotMatchError = require("../Exceptions/PasswordNotMatchError");
+const tokenExpiration = "1hr";
 const UnauthorizationError = require("../Exceptions/UnauthorizationError");
-
 
 const UserRegistration = async (req, res) =>
 {
     try
     {
-        const {auth0Id = "sds", name, email, password} = req.body;
+        const {name, email, password} = req.body;
         const hash = await bcrypt.hash(password, saltRounds);
-        const newUser = new User({auth0Id, name, email, password: hash});
+        const newUser = new User({name, email, password: hash});
 
         await newUser.save();
-        const token = jwt.sign({userId: newUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: "1hr"});
+        const token = jwt.sign({userId: newUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
         
         res.status(201).json(token);
     }
@@ -39,12 +37,20 @@ const UserLogin = async (req, res) =>
         const isPasswordMatch = await bcrypt.compare(passwordInput, target.password);
         if(!isPasswordMatch) {throw new UnauthorizationError()}
 
-        const token = jwt.sign({userId: target._id}, process.env.JWT_SECRET_KEY, {expiresIn: "1hr"});
+        const token = jwt.sign({userId: target._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
         res.status(200).json(token);
     }
     catch(err)
     {
-        res.status(500).json(err.message);
+        switch(err)
+        {
+            case err instanceof UnauthorizationError:
+                res.status(401).json(err);
+                break;
+            default:
+                res.status(500).json("Something went wrong");
+                break;
+        }
     }
 }
 
@@ -65,13 +71,10 @@ const UpdateUser = async (req, res) =>
 {
     try
     {
-        const targetId = req.body.userId;
+        const targetId = req.userId;
         const target = await User.findById(targetId);
-
-        if(!target) {throw new EntityNotFoundError("User not found")}
-
-        const newData = req.body;
         
+        const newData = req.body;
         target.name = newData.name;
         target.email = newData.email;
 
@@ -80,13 +83,14 @@ const UpdateUser = async (req, res) =>
     }
     catch(err)
     {
-        if(err instanceof EntityNotFoundError)
+        switch(err)
         {
-            res.status(404).json(err);
-        }
-        else
-        {
-            res.status(500).json({message: err.message});
+            case err instanceof UnauthorizationError:
+                res.status(401).json(err);
+                break;
+            default:
+                res.status(500).json("Something went wrong");
+                break;
         }
     }
 }
@@ -95,11 +99,13 @@ const UpdatePassword = async (req, res) =>
 {
     try
     {
-        const {userId, oldPassword, newPassword} = req.body;
+        const userId = req.userId;
+        const {oldPassword, newPassword} = req.body;
+
         const target = await User.findById(userId);
         const isPasswordMatch =  await bcrypt.compare(oldPassword, target.password);
 
-        if(!isPasswordMatch) {throw new PasswordNotMatchError()}
+        if(!isPasswordMatch) {throw new UnauthorizationError()}
 
         const newHash = await bcrypt.hash(newPassword, saltRounds);
         target.password = newHash;
@@ -109,13 +115,14 @@ const UpdatePassword = async (req, res) =>
     }
     catch(err)
     {
-        if(err instanceof PasswordNotMatchError)
+        switch(err)
         {
-            res.status(401).json(err);
-        }
-        else
-        {
-            res.status(500).json(err.message);
+            case err instanceof UnauthorizationError:
+                res.status(401).json(err);
+                break;
+            default:
+                res.status(500).json("Something went wrong");
+                break;
         }
     }
 }

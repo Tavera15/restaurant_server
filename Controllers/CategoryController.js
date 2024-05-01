@@ -85,7 +85,7 @@ const DeleteCategory = async (req, res) =>
         const name = req.params.name;
         const target = await GetCategory(name);
         await Category.findByIdAndDelete(target._id);
-
+        
         return res.status(200).json({message: `Successfully deleted category: ${name}`});
     }
     catch(err)
