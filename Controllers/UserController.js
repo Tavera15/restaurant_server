@@ -73,10 +73,16 @@ const UpdateUser = async (req, res) =>
     {
         const targetId = req.userId;
         const target = await User.findById(targetId);
-        
         const newData = req.body;
-        target.name = newData.name;
-        target.email = newData.email;
+        
+        target.name             = newData.name;
+        target.email            = newData.email;
+        target.phone            = newData.phone;
+        target.addressLine1     = newData.addressLine1;
+        target.addressLine2     = newData.addressLine2;
+        target.city             = newData.city;
+        target.state            = newData.state;
+        target.zip              = newData.zip;
 
         await target.save();
         res.status(200).json(target);

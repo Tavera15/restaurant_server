@@ -6,9 +6,10 @@ const mongoose = require("mongoose");
 http = require("http");
 require('dotenv').config();
 
-const CategoryRoute = require("./Routes/CategoryRoute");
-const UserRoute = require("./Routes/UserRoute");
-const MenuItemRoute = require("./Routes/MenuItemRoute");
+const CategoryRoute     = require("./Routes/CategoryRoute");
+const UserRoute         = require("./Routes/UserRoute");
+const MenuItemRoute     = require("./Routes/MenuItemRoute");
+const OrderRoute        = require("./Routes/OrderRoute");
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,7 @@ mongoose
 app.use("/api/Category", CategoryRoute);
 app.use("/api/User", UserRoute);
 app.use("/api/MenuItem", MenuItemRoute);
+app.use("/api/Order", OrderRoute);
 
 app.get("/", (req, res) => {
     res.status(200).json({message: "Home Page"});
