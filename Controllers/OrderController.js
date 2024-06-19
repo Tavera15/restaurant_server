@@ -4,6 +4,20 @@ const MenuItem = require("../Models/MenuItem");
 
 const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
 
+const GetOrders = async (req, res) =>
+{
+    try
+    {
+        const target = await Order.find();
+
+        res.status(200).json(target);
+    }
+    catch
+    {
+        res.status(500).json(res.message);
+    }
+}
+
 const PlaceOrder = async (req, res) =>
 {
     try
@@ -30,5 +44,6 @@ const PlaceOrder = async (req, res) =>
 }
 
 module.exports = {
-    PlaceOrder
+    GetOrders,
+    PlaceOrder,
 }
