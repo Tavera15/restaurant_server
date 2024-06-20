@@ -21,7 +21,7 @@ const UserRegistration = async (req, res) =>
     }
     catch(err)
     {
-        res.status(500).json(err.message);
+        res.status(500).json(err);
     }
 }
 
@@ -29,12 +29,12 @@ const UserLogin = async (req, res) =>
 {
     try
     {
-        const {email, passwordInput} = req.body;
+        const {email, password} = req.body;
 
         const target = await User.findOne({email});        
         if(!target) {throw new UnauthorizationError()}
 
-        const isPasswordMatch = await bcrypt.compare(passwordInput, target.password);
+        const isPasswordMatch = await bcrypt.compare(password, target.password);
         if(!isPasswordMatch) {throw new UnauthorizationError()}
 
         const token = jwt.sign({userId: target._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
@@ -48,7 +48,7 @@ const UserLogin = async (req, res) =>
                 res.status(401).json(err);
                 break;
             default:
-                res.status(500).json("Something went wrong");
+                res.status(500).json(err);
                 break;
         }
     }
