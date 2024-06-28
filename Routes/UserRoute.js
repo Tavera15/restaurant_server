@@ -9,5 +9,6 @@ router.post("/UserLogin", (req, res) => UserController.UserLogin(req, res));
 router.get("/GetUser", verifyToken, (req, res) => UserController.GetUser(req, res));
 router.put("/UpdateUser", verifyToken, (req, res) => UserController.UpdateUser(req, res));
 router.put("/UpdatePassword", verifyToken, (req, res) => UserController.UpdatePassword(req, res));
+router.get("/RefreshToken", verifyToken, (req, res) => UserController.refreshToken(req, res));
 
 module.exports = router;

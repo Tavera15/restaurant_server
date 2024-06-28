@@ -5,7 +5,7 @@ const verifyToken = (req, res, next) =>
 {
     try
     {
-        const token = req.header(process.env.JWT_HEADER);
+        const token = req.headers[`${process.env.JWT_HEADER}`];
         if(!token) {throw new UnauthorizationError()}
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -22,7 +22,7 @@ const verifyToken = (req, res, next) =>
                 res.status(401).json(err);
                 break;
             default:
-                res.status(500).json("Something went wrong");
+                res.status(500).json(err);
                 break;
         }
     }
