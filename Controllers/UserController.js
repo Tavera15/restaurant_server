@@ -54,11 +54,11 @@ const UserLogin = async (req, res) =>
     }
 }
 
-const refreshToken = async (req, res) => 
+const VerifyToken = async (req, res) => 
 {
     try
     {
-        const token = jwt.sign({userId: req.userId}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
+        const token = req.headers[`${process.env.JWT_HEADER}`];
         res.status(200).json(token);
     }
     catch(err)
@@ -150,7 +150,7 @@ module.exports = {
     GetUser,
     UserRegistration,
     UserLogin,
-    refreshToken,
+    VerifyToken,
     UpdateUser,
     UpdatePassword,
 }
