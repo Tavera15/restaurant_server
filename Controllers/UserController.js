@@ -72,6 +72,7 @@ const GetUser = async (req, res) =>
     try
     {
         const target = await User.findById(req.userId).select("-password");
+        console.log(target)
         res.status(200).json(target);
     }
     catch(err)

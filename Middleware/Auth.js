@@ -7,10 +7,9 @@ const verifyToken = (req, res, next) =>
     {
         const token = req.headers[`${process.env.JWT_HEADER}`];
         if(!token) {throw new UnauthorizationError()}
-        
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         if(!decoded) {throw new UnauthorizationError()}
-
+        
         req.userId = decoded.userId;
         next();
     }
