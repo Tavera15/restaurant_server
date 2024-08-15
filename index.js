@@ -10,6 +10,7 @@ const CategoryRoute     = require("./Routes/CategoryRoute");
 const UserRoute         = require("./Routes/UserRoute");
 const MenuItemRoute     = require("./Routes/MenuItemRoute");
 const OrderRoute        = require("./Routes/OrderRoute");
+const CartRoute         = require("./Routes/CartRoute");
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use("/api/Category", CategoryRoute);
 app.use("/api/User", UserRoute);
 app.use("/api/MenuItem", MenuItemRoute);
 app.use("/api/Order", OrderRoute);
+app.use("/api/Cart", CartRoute);
 
 app.get("/", (req, res) => {
     res.status(200).json({message: "Home Page"});
