@@ -12,15 +12,39 @@ const AddToCart = async (req, res) =>
     try
     {
         const cart = await GetCart(req,res);
-        const newCartItem = new CartItem();
+        const {itemId, qty, customs} = req.body;
+        let target = null;
 
-        newCartItem.cart = cart.id;
-        newCartItem.itemId = req.body.itemId;
-        newCartItem.quantity = req.body.qty;
-        newCartItem.customs = req.body.customs;
+        // Look inside cart for matching items to combine quantities
+        for(let i = 0; i < cart.items.length; i++)
+        {
+            const existingItem = await CartItem.findById(cart.items[i]._id);
+
+            if(existingItem.itemId.toString() === itemId)
+            {
+                target = existingItem;
+                break;
+            }
+        }
+
+        if(target !== null)
+        {
+            // If match found, combine quantities....
+            target.quantity += qty;
+        }
+        else
+        {
+            // ...else create new cart item object
+            target = new CartItem();
+            target.cart = cart.id;
+            target.itemId = itemId;
+            target.quantity = qty;
+            target.customs = customs;
+            
+            cart.items.push(newCartItem);
+        }
         
-        cart.items.push(newCartItem);
-        await newCartItem.save();
+        await target.save();
         await cart.save();
 
         res.status(200).json(cart);
