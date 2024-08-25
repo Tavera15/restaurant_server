@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("./User");
-const MenuItem = require("./MenuItem");
+const CartItem = require("./CartItem");
 
 
 const CartSchema = mongoose.Schema({
@@ -10,30 +10,10 @@ const CartSchema = mongoose.Schema({
     },
     items: [
         {
-            itemId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "MenuItem",
-            },
-            quantity: {
-                type: Number,
-                required: true,
-                min: 1
-            },
-            price: {
-                type: Number,
-                required: true,
-                min: 1
-            },
-            customs: [
-                {
-                    listName: {
-                        type: String
-                    },
-                    selections: [String]
-                }
-            ]
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "CartItem"
         }
-    ],
+    ]
 });
 
 const Cart = mongoose.model("Cart", CartSchema);
