@@ -78,6 +78,35 @@ const ClearCart = async (req, res) =>
     }
 }
 
+const DeleteItem = async (req, res) => 
+{
+    try
+    {
+        const cart = await GetCart(req,res);
+        const {targetId} = req.body;
+        const target = await CartItem.findById(targetId);
+
+        const targetExist = target !== undefined && cart.items.find(i => i._id.toString() === targetId.toString()) !== undefined;
+
+        if(targetExist)
+        {
+            cart.items.pull(targetId);
+            
+            await CartItem.deleteOne(target)
+            await cart.save();
+            res.status(200).json(cart);
+        }
+        else
+        {
+            throw new EntityNotFoundError("Item not in cart");
+        }
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message);
+    }
+}
+
 const GetCart = async (req, res) => 
 {
     try
@@ -105,4 +134,5 @@ const GetCart = async (req, res) =>
 module.exports = {
     AddToCart,
     ClearCart,
+    DeleteItem
 }
