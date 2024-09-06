@@ -17,14 +17,9 @@ const CartItemSchema = mongoose.Schema({
         required: true,
         min: 1
     },
-    customs: [
-        {
-            listName: {
-                type: String
-            },
-            selections: [String]
-        }
-    ]
+    customs: {
+        type: String
+    }
 });
 
 const CartItem = mongoose.model("CartItem", CartItemSchema);
