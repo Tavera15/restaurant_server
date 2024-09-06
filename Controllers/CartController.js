@@ -56,6 +56,28 @@ const AddToCart = async (req, res) =>
     }
 }
 
+const ClearCart = async (req, res) => 
+{
+    try
+    {
+        const cart = await GetCart(req,res);
+
+        for(let i = 0; i < cart.items.length; i++)
+        {
+            const target = await CartItem.findById(cart.items[i]._id);
+            await CartItem.deleteOne(target);
+        }
+
+        cart.items = [];
+        await cart.save();
+        res.status(200).json(cart);
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message);
+    }
+}
+
 const GetCart = async (req, res) => 
 {
     try
@@ -82,4 +104,5 @@ const GetCart = async (req, res) =>
 
 module.exports = {
     AddToCart,
+    ClearCart,
 }
