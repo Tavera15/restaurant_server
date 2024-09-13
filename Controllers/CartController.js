@@ -1,11 +1,7 @@
 const Cart = require("../Models/Cart");
-const Order = require("../Models/Order");
-const MenuItem = require("../Models/MenuItem");
-
-const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
 const CartItem = require("../Models/CartItem");
+const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
 const cartHeader = "cartid"
-
 
 const AddToCart = async (req, res) =>
 {
@@ -107,6 +103,37 @@ const DeleteItem = async (req, res) =>
     }
 }
 
+const UpdateItem = async (req, res) => 
+{
+    try
+    {
+        const cart = await GetCart(req,res);
+        const {targetId, qty, customs} = req.body;
+        const target = await CartItem.findById(targetId);
+
+        const targetExist = target !== undefined && cart.items.find(i => i._id.toString() === targetId.toString()) !== undefined;
+
+        if(targetExist)
+        {
+            target.quantity = qty;
+            target.customs = JSON.stringify(customs);
+
+            await target.save();
+            await cart.save();
+
+            res.status(200).json(target);
+        }
+        else
+        {
+            throw new EntityNotFoundError("Cart item not found");
+        }
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message);
+    }
+}
+
 const GetCart = async (req, res) => 
 {
     try
@@ -133,6 +160,7 @@ const GetCart = async (req, res) =>
 
 module.exports = {
     AddToCart,
+    UpdateItem,
     ClearCart,
     DeleteItem
 }
