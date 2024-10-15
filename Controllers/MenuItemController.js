@@ -42,14 +42,15 @@ const CreateMenuItem = async (req, res) =>
     try
     {
         const {name, description, price, categoryId} = req.body;
+        const customs = JSON.stringify(req.body.customs);
         
         const category = await Category.findById(categoryId);
         if(!category) {throw new EntityNotFoundError("Category listed not found")}
 
-        const newMenuItem = new MenuItem({name, description, price, category});
+        const newMenuItem = new MenuItem({name, description, price, category, customs});
         await newMenuItem.save();
 
-        res.status(200).json(req.body);
+        res.status(200).json(newMenuItem);
     }
     catch(err)
     {
@@ -68,16 +69,17 @@ const UpdateMenuItem = async (req, res) =>
 {
     try
     {
-        const name = req.params.name;
+        const id = req.params.id;
         const newData = req.body;
         
-        const target            = await GetMenuItem(name);
+        const target            = await MenuItem.findById(id);
         const newCategory       = await GetCategory(newData.categoryId);
 
         target.name             = newData.name;
         target.description      = newData.description;
         target.price            = newData.price;
         target.category         = newCategory;
+        target.customs          = JSON.stringify(newData.customs);
 
         await target.save();
         res.status(201).json(target);
@@ -100,11 +102,10 @@ const DeleteMenuItem = async (req, res) =>
 {
     try
     {
-        const name = req.params.name;
-        const target = await GetMenuItem(name);
-        await MenuItem.findByIdAndDelete(target._id);
+        const id = req.params.id;
+        await MenuItem.findByIdAndDelete(id);
 
-        return res.status(200).json({message: `Successfully deleted menu item: ${name}`});
+        return res.status(200);
     }
     catch(err)
     {

@@ -12,7 +12,7 @@ const AddToCart = async (req, res) =>
         const newCustoms = JSON.stringify(customs);
         let target = null;
 
-        // Look inside cart for matching items to combine quantities
+        // Look inside cart for matching items to combine quantities    
         for(let i = 0; i < cart.items.length; i++)
         {
             const existingItem = await CartItem.findById(cart.items[i]._id);
