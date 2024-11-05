@@ -7,7 +7,8 @@ const AddToCart = async (req, res) =>
 {
     try
     {
-        const cart = await GetCart(req,res);
+        const cart = await GetCart(req, res);
+
         const {itemId, qty, customs} = req.body;
         const newCustoms = JSON.stringify(customs);
         let target = null;
@@ -57,6 +58,7 @@ const ClearCart = async (req, res) =>
     try
     {
         const cart = await GetCart(req,res);
+        console.log(req.body);
 
         for(let i = 0; i < cart.items.length; i++)
         {
@@ -70,6 +72,7 @@ const ClearCart = async (req, res) =>
     }
     catch(err)
     {
+        console.log(err);
         res.status(500).json(err.message);
     }
 }
@@ -78,6 +81,8 @@ const DeleteItem = async (req, res) =>
 {
     try
     {
+        res.status(200).json({_id: "deleteitem"});
+        return;
         const cart = await GetCart(req,res);
         const {targetId} = req.body;
         const target = await CartItem.findById(targetId);
@@ -105,6 +110,8 @@ const DeleteItem = async (req, res) =>
 
 const UpdateItem = async (req, res) => 
 {
+    res.status(200).json({_id: "updateitem"});
+        return;
     try
     {
         const cart = await GetCart(req,res);
@@ -121,7 +128,7 @@ const UpdateItem = async (req, res) =>
             await target.save();
             await cart.save();
 
-            res.status(200).json(target);
+            res.status(200).json(cart);
         }
         else
         {
@@ -138,17 +145,20 @@ const GetCart = async (req, res) =>
 {
     try
     {
-        const cartId = req.headers[`${cartHeader}`];
+        const cartId = req.body[cartHeader];
         const target = await Cart.findById(cartId);
 
         if(target)
         {
+            console.log(target)
             return target;
         }
         else
         {
             const newCart = new Cart();
             await newCart.save();
+
+            console.log(newCart)
             return newCart;
         }
     }
@@ -158,7 +168,34 @@ const GetCart = async (req, res) =>
     }
 }
 
+const GetCartItems = async (req, res) => 
+{
+    try
+    {
+        const cartId = req.query.cartid;
+        const target = await Cart.findById(cartId);
+
+        if(target)
+        {
+            res.status(200).json(target)
+        }
+        else
+        {
+            const newCart = new Cart();
+            await newCart.save();
+
+            res.status(200).json(newCart);
+        }
+    }
+    catch(err)
+    {
+        res.status(500).json([]);
+    }
+}
+
 module.exports = {
+    GetCart,
+    GetCartItems,
     AddToCart,
     UpdateItem,
     ClearCart,
