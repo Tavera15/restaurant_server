@@ -1,6 +1,7 @@
 const Cart = require("../Models/Cart");
 const CartItem = require("../Models/CartItem");
 const EntityNotFoundError = require("../Exceptions/EntityNotFoundError");
+const MenuItem = require("../Models/MenuItem");
 const cartHeader = "cartid"
 
 const AddToCart = async (req, res) =>
@@ -77,6 +78,45 @@ const ClearCart = async (req, res) =>
     }
 }
 
+const GetSingleCartItem = async (req, res) => 
+{
+    try
+    {
+        console.log(req.query);
+        const targetId = req.query.cartItemId;
+        let target = null;
+
+        const cartId = req.query.cartid;
+        const cart = await Cart.findById(cartId);
+
+        if(!cart)
+        {
+            throw new EntityNotFoundError("Cart Not Found");
+        }
+
+        for(let i = 0; i < cart.items.length; i++)
+        {
+            if(cart.items[i]._id.toString() === targetId)
+            {
+                target = await CartItem.findById(cart.items[i]);
+                break;
+            }
+        }
+        
+        if(!target)
+        {
+            throw new EntityNotFoundError("Cart Item Not Found");
+        }
+
+        const menuItem = await MenuItem.findById(target.itemId);
+        res.status(200).json({target, menuItem});
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message)
+    }
+}
+
 const DeleteItem = async (req, res) => 
 {
     try
@@ -110,8 +150,6 @@ const DeleteItem = async (req, res) =>
 
 const UpdateItem = async (req, res) => 
 {
-    res.status(200).json({_id: "updateitem"});
-        return;
     try
     {
         const cart = await GetCart(req,res);
@@ -196,6 +234,7 @@ const GetCartItems = async (req, res) =>
 module.exports = {
     GetCart,
     GetCartItems,
+    GetSingleCartItem,
     AddToCart,
     UpdateItem,
     ClearCart,
