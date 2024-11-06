@@ -59,7 +59,6 @@ const ClearCart = async (req, res) =>
     try
     {
         const cart = await GetCart(req,res);
-        console.log(req.body);
 
         for(let i = 0; i < cart.items.length; i++)
         {
@@ -73,7 +72,6 @@ const ClearCart = async (req, res) =>
     }
     catch(err)
     {
-        console.log(err);
         res.status(500).json(err.message);
     }
 }
@@ -82,7 +80,6 @@ const GetSingleCartItem = async (req, res) =>
 {
     try
     {
-        console.log(req.query);
         const targetId = req.query.cartItemId;
         let target = null;
 
@@ -121,8 +118,6 @@ const DeleteItem = async (req, res) =>
 {
     try
     {
-        res.status(200).json({_id: "deleteitem"});
-        return;
         const cart = await GetCart(req,res);
         const {targetId} = req.body;
         const target = await CartItem.findById(targetId);
@@ -132,9 +127,10 @@ const DeleteItem = async (req, res) =>
         if(targetExist)
         {
             cart.items.pull(targetId);
-            
-            await CartItem.deleteOne(target)
+
+            await CartItem.deleteOne(target);
             await cart.save();
+
             res.status(200).json(cart);
         }
         else
@@ -188,7 +184,6 @@ const GetCart = async (req, res) =>
 
         if(target)
         {
-            console.log(target)
             return target;
         }
         else
@@ -196,7 +191,6 @@ const GetCart = async (req, res) =>
             const newCart = new Cart();
             await newCart.save();
 
-            console.log(newCart)
             return newCart;
         }
     }
