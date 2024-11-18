@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const saltRounds = 10;
-const tokenExpiration = "1hr";
+const tokenExpiration = "1d";
 const UnauthorizationError = require("../Exceptions/UnauthorizationError");
 
 const UserRegistration = async (req, res) =>
@@ -12,7 +12,7 @@ const UserRegistration = async (req, res) =>
     {
         const {name, email, password} = req.body;
         const hash = await bcrypt.hash(password, saltRounds);
-        const newUser = new User({name, email, password: hash});
+        const newUser = new User({name, email, password: hash, role: "customer"});
 
         await newUser.save();
         const token = jwt.sign({userId: newUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});

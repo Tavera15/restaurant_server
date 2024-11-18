@@ -41,13 +41,13 @@ const CreateMenuItem = async (req, res) =>
 {
     try
     {
-        const {name, description, price, categoryId} = req.body;
+        const {name, description, price, categoryId, image} = req.body;
         const customs = JSON.stringify(req.body.customs);
         
         const category = await Category.findById(categoryId);
         if(!category) {throw new EntityNotFoundError("Category listed not found")}
 
-        const newMenuItem = new MenuItem({name, description, price, category, customs});
+        const newMenuItem = new MenuItem({name, description, price, category, customs, image});
         await newMenuItem.save();
 
         res.status(200).json(newMenuItem);
@@ -80,6 +80,7 @@ const UpdateMenuItem = async (req, res) =>
         target.price            = newData.price;
         target.category         = newCategory;
         target.customs          = JSON.stringify(newData.customs);
+        target.image            = newData.image;
 
         await target.save();
         res.status(201).json(target);

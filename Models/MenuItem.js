@@ -20,6 +20,9 @@ const MenuItemSchema = mongoose.Schema({
     },
     customs: {
         type: String
+    },
+    image: {
+        type: String
     }
 })
 
