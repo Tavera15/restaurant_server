@@ -13,7 +13,11 @@ const CartSchema = mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "CartItem"
         }
-    ]
+    ],
+    total: {
+        type: Number,
+        min: 0.00
+    }
 });
 
 const Cart = mongoose.model("Cart", CartSchema);

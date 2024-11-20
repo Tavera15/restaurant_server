@@ -44,12 +44,14 @@ const AddToCart = async (req, res) =>
         }
         
         await target.save();
+        cart.total = await getCartTotal(cart);
         await cart.save();
 
         res.status(200).json(cart);
     }
     catch(err)
     {
+        console.log(err)
         res.status(500).json(err.message);
     }
 }
@@ -67,7 +69,9 @@ const ClearCart = async (req, res) =>
         }
 
         cart.items = [];
+        cart.total = 0.00;
         await cart.save();
+        
         res.status(200).json(cart);
     }
     catch(err)
@@ -127,8 +131,9 @@ const DeleteItem = async (req, res) =>
         if(targetExist)
         {
             cart.items.pull(targetId);
-
             await CartItem.deleteOne(target);
+            
+            cart.total = await getCartTotal(cart);
             await cart.save();
 
             res.status(200).json(cart);
@@ -158,8 +163,9 @@ const UpdateItem = async (req, res) =>
         {
             target.quantity = qty;
             target.customs = JSON.stringify(customs);
-
             await target.save();
+
+            cart.total = await getCartTotal(cart);
             await cart.save();
 
             res.status(200).json(cart);
@@ -223,6 +229,21 @@ const GetCartItems = async (req, res) =>
     {
         res.status(500).json([]);
     }
+}
+
+async function getCartTotal(cart)
+{
+    let total = 0.00;
+
+    for(let i in cart.items)
+    {
+        const target = await CartItem.findById(cart.items[i]._id);
+        const menuItem = await MenuItem.findById(target.itemId);
+
+        total += Number.parseFloat((menuItem.price * target.quantity).toFixed(2));
+    }
+
+    return total;
 }
 
 module.exports = {

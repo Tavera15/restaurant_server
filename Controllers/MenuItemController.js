@@ -37,6 +37,21 @@ const GetMenuItems = async (req, res) =>
     }
 }
 
+const GetSingleMenuItemById = async (req, res) => 
+{
+    try
+    {
+        const id = req.params.id;
+        const target = await MenuItem.findById(id);
+
+        res.status(200).json(target);
+    }
+    catch(err)
+    {
+        res.status(500).json(err.message);
+    }
+}
+
 const CreateMenuItem = async (req, res) =>
 {
     try
@@ -124,6 +139,7 @@ const DeleteMenuItem = async (req, res) =>
 
 module.exports = {
     GetMenuItems,
+    GetSingleMenuItemById,
     CreateMenuItem,
     UpdateMenuItem,
     DeleteMenuItem
