@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = mongoose.Schema({
-    orderNumber: {
-        type: String,
-        required: true
-    },
     user: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User"
     },
     customer_delivery: {
         name: {
+            type: String,
+            required: true
+        },
+        phone: {
             type: String,
             required: true
         },
@@ -34,17 +34,16 @@ const OrderSchema = mongoose.Schema({
             type: String,
             required: true
         },
-        zip: {
+        zipCode: {
             type: String,
             required: true
         },
     },
     cart: [
         {
-            menuItemId: { type: String, required: true },
-            name: { type: String, required: true },
-            quantity: { type: Number, required: true, min: 1 },
-        },
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "CartItem"
+        }
     ],
     grand_total: {
         type: Number,
