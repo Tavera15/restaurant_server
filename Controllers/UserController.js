@@ -15,7 +15,7 @@ const UserRegistration = async (req, res) =>
         const newUser = new User({name, email, password: hash, role: "customer"});
 
         await newUser.save();
-        const token = jwt.sign({userId: newUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
+        const token = jwt.sign({userId: newUser._id, role: newUser.role}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
         
         res.status(201).json(token);
     }
@@ -37,7 +37,7 @@ const UserLogin = async (req, res) =>
         const isPasswordMatch = await bcrypt.compare(password, target.password);
         if(!isPasswordMatch) {throw new UnauthorizationError()}
 
-        const token = jwt.sign({userId: target._id}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
+        const token = jwt.sign({userId: target._id, role: target.role}, process.env.JWT_SECRET_KEY, {expiresIn: tokenExpiration});
         res.status(200).json(token);
     }
     catch(err)
